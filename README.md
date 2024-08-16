@@ -4,7 +4,7 @@ Chocolate-Wolfenstein-3D
 # Getting Started
 
 1. Start MSVC 2013
-2. Open solution: `win32\vs2013\choco_wold3d.sln
+2. Open solution: `win32\vs2013\choco_wold3d.sln`
 3. Build Solution (Ctrl-Shift-B)
 4. Run (F5)
 
