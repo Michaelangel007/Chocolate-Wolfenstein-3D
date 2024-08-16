@@ -1,5 +1,7 @@
 // WL_MAIN.C
 
+#include "compiler.h"
+
 #ifdef _WIN32
     #include <io.h>
 #else

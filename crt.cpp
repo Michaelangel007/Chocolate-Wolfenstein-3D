@@ -6,6 +6,8 @@
 //
 //
 
+#include "compiler.h"
+
 #include "crt.h"
 
 // Win32

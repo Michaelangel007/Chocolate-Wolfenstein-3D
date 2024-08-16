@@ -17,6 +17,8 @@
 //  DEBUG - there are more globals
 //
 
+#include "compiler.h"
+
 #include "wl_def.h"
 
 

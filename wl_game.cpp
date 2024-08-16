@@ -1,5 +1,7 @@
 // WL_GAME.C
 
+#include "compiler.h"
+
 #include <math.h>
 #include "wl_def.h"
 // Win32

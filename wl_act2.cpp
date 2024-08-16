@@ -1,5 +1,7 @@
 // WL_ACT2.C
 
+#include "compiler.h"
+
 #include <stdio.h>
 #include <math.h>
 #include "wl_def.h"

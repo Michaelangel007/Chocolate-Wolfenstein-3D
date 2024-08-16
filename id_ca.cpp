@@ -14,6 +14,8 @@ loaded into the data segment
 =============================================================================
 */
 
+#include "compiler.h"
+
 #include <sys/types.h>
 #if defined _WIN32
     #include <io.h>
