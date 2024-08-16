@@ -1,6 +1,24 @@
 Chocolate-Wolfenstein-3D
 ========================
 
+# Getting Started
+
+1. Start MSVC 2013
+2. Open solution: `win32\vs2013\choco_wold3d.sln
+3. Build Solution (Ctrl-Shift-B)
+4. Run (F5)
+
+# Improvements
+
+Improvements from Fabian's Chocolate Wolfenstein-3D:
+
+Ready to compile and run out-of-the-box by including:
+  * MSVC 2013 Solution and Project
+  * SDL.dll and SDL_Mixer.dll in both Debug\ and Release\ config
+  * Includes SDL and SDL_Mixer Header files
+
+# Details
+
 Based on Wolf4SDL by Moritz "Ripper" Kroll (http://www.chaos-software.de.vu).
 
 Original Wolfenstein 3D by id Software (http://www.idsoftware.com)
