@@ -6,7 +6,9 @@ Chocolate-Wolfenstein-3D
 1. Start MSVC 2013
 2. Open solution: `win32\vs2013\choco_wold3d.sln`
 3. Build Solution (Ctrl-Shift-B)
-4. Run (F5)
+4. In the **Solution Explorer** right-click on Project "choco_wold3d" > Properties
+5. Configuration Properties > Debug > Working Directory: `$(SolutionDir)$(Configuration)\`
+6. Run (F5)
 
 # Improvements
 
