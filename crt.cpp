@@ -26,6 +26,13 @@ GLuint crtTexture;
 
 unsigned char coloredFrameBuffer[320*200*3];
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+SDL_GLContext  gSDLContext;
+SDL_Palette   *gpSDLPalette  = nullptr;
+SDL_Renderer  *gpSDLRenderer = nullptr;
+SDL_Window    *gpSDLWindow   = nullptr;
+#endif
+
 void CRT_Init(int _width){
     width  = _width;
     height = _width * 3.0/4.0;
@@ -58,7 +65,11 @@ void CRT_Init(int _width){
  
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_GL_SwapWindow(gpSDLWindow);
+#else
     SDL_GL_SwapBuffers();
+#endif
 }
 
 #include "id_vl.h"
@@ -99,11 +110,24 @@ void CRT_DAC(void){
     
     
     //Flip buffer
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_GL_SwapWindow(gpSDLWindow);
+#else
     SDL_GL_SwapBuffers();
+#endif
 	
+#if SDL_VERSION_ATLEAST(2,0,0)
+    const Uint8* keystate = SDL_GetKeyboardState( nullptr );
+#else
 	Uint8 *keystate = SDL_GetKeyState(NULL);
+#endif
 	static int wasPressed = 0;
+
+#if SDL_VERSION_ATLEAST(2,0,0)
+	if ( keystate[SDL_SCANCODE_I] ){
+#else
 	if ( keystate[SDLK_i] ){
+#endif // SDL2
 		if (!wasPressed){
 			wasPressed = 1;
 			CRT_Screenshot();

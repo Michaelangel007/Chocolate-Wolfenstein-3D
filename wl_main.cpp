@@ -1216,9 +1216,17 @@ static void InitGame()
         struct SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+        if (SDL_GetWindowWMInfo(gpSDLWindow,&wmInfo))
+#else
         if(SDL_GetWMInfo(&wmInfo) != -1)
+#endif
         {
+#if SDL_VERSION_ATLEAST(2,0,0)
+            HWND hwndSDL = wmInfo.info.win.window;
+#else
             HWND hwndSDL = wmInfo.window;
+#endif
             DWORD style = GetWindowLong(hwndSDL, GWL_STYLE) & ~WS_SYSMENU;
             SetWindowLong(hwndSDL, GWL_STYLE, style);
             SetWindowPos(hwndSDL, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);

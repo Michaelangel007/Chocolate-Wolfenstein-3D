@@ -20,7 +20,7 @@
 #include "compiler.h"
 
 #include "wl_def.h"
-
+#include "crt.h" // gpSDLWindow
 
 /*
 =============================================================================
@@ -39,7 +39,11 @@ boolean forcegrabmouse;
 
 
 //  Global variables
-volatile boolean    Keyboard[SDLK_LAST];
+#if SDL_VERSION_ATLEAST(2,0,0)
+volatile boolean    Keyboard[SDL_NUM_SCANCODES];
+#else
+//volatile boolean    Keyboard[SDLK_LAST];
+#endif
 volatile boolean    Paused;
 volatile char       LastASCII;
 volatile ScanCode   LastScan;
@@ -245,15 +249,27 @@ static void processEvent(SDL_Event *event)
         // check for keypresses
         case SDL_KEYDOWN:
         {
+#if SDL_VERSION_ATLEAST(2,0,0)
+            if(event->key.keysym.sym==SDLK_SCROLLLOCK || event->key.keysym.sym==SDLK_F12)
+#else
             if(event->key.keysym.sym==SDLK_SCROLLOCK || event->key.keysym.sym==SDLK_F12)
+#endif
             {
                 GrabInput = !GrabInput;
+#if SDL_VERSION_ATLEAST(2,0,0)
+                SDL_SetRelativeMouseMode(GrabInput ? SDL_TRUE : SDL_FALSE);
+#else
                 SDL_WM_GrabInput(GrabInput ? SDL_GRAB_ON : SDL_GRAB_OFF);
+#endif
                 return;
             }
 
             LastScan = event->key.keysym.sym;
+#if SDL_VERSION_ATLEAST(2,0,0)
+            SDL_Keymod mod = SDL_GetModState();
+#else
             SDLMod mod = SDL_GetModState();
+#endif
             if(Keyboard[sc_Alt])
             {
                 if(LastScan==SDLK_F4)
@@ -270,10 +286,20 @@ static void processEvent(SDL_Event *event)
                 {
                     switch(LastScan)
                     {
+// SDL1.x https://www.libsdl.org/release/SDL-1.2.15/docs/html/sdlkey.html
+// SDL2.x https://github.com/libsdl-org/SDL/blob/SDL2/include/SDL_keycode.h
+//        https://wiki.libsdl.org/SDL2/SDL_ScancodeAndKeycode
+#if SDL_VERSION_ATLEAST(2,0,0)
+                        case SDLK_KP_2: LastScan = SDLK_DOWN; break;
+                        case SDLK_KP_4: LastScan = SDLK_LEFT; break;
+                        case SDLK_KP_6: LastScan = SDLK_RIGHT; break;
+                        case SDLK_KP_8: LastScan = SDLK_UP; break;
+#else
                         case SDLK_KP2: LastScan = SDLK_DOWN; break;
                         case SDLK_KP4: LastScan = SDLK_LEFT; break;
                         case SDLK_KP6: LastScan = SDLK_RIGHT; break;
                         case SDLK_KP8: LastScan = SDLK_UP; break;
+#endif
                     }
                 }
             }
@@ -296,7 +322,11 @@ static void processEvent(SDL_Event *event)
 			if (LastScan<SDLK_i){
 			}
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+			if(LastScan < SDL_NUM_SCANCODES){
+#else
 			if(LastScan<SDLK_LAST){
+#endif
                 Keyboard[LastScan] = 1;
 			}
             if(LastScan == SDLK_PAUSE)
@@ -317,15 +347,27 @@ static void processEvent(SDL_Event *event)
                 {
                     switch(key)
                     {
+#if SDL_VERSION_ATLEAST(2,0,0)
+                        case SDLK_KP_2: key = SDLK_DOWN; break;
+                        case SDLK_KP_4: key = SDLK_LEFT; break;
+                        case SDLK_KP_6: key = SDLK_RIGHT; break;
+                        case SDLK_KP_8: key = SDLK_UP; break;
+
+#else
                         case SDLK_KP2: key = SDLK_DOWN; break;
                         case SDLK_KP4: key = SDLK_LEFT; break;
                         case SDLK_KP6: key = SDLK_RIGHT; break;
                         case SDLK_KP8: key = SDLK_UP; break;
+#endif // SDL2
                     }
                 }
             }
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+			if(key < SDL_NUM_SCANCODES){
+#else
 			if(key<SDLK_LAST){
+#endif
                 Keyboard[key] = 0;
 			}
             break;
@@ -387,7 +429,11 @@ IN_Startup(void)
     if(fullscreen || forcegrabmouse)
     {
         GrabInput = true;
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+#else
         SDL_WM_GrabInput(SDL_GRAB_ON);
+#endif
     }
 
     // I didn't find a way to ask libSDL whether a mouse is present, yet...
@@ -616,5 +662,9 @@ bool IN_IsInputGrabbed()
 
 void IN_CenterMouse()
 {
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_WarpMouseInWindow(gpSDLWindow,screenWidth / 2, screenHeight / 2);
+#else
     SDL_WarpMouse(screenWidth / 2, screenHeight / 2);
+#endif
 }

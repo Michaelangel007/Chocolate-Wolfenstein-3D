@@ -136,7 +136,12 @@ typedef struct      {
                                     joyMultXH,joyMultYH;
                     } JoystickDef;
 // Global variables
-extern  volatile boolean    Keyboard[];;
+//extern  volatile boolean    Keyboard[];;
+#if SDL_VERSION_ATLEAST(2,0,0)
+extern volatile boolean    Keyboard[SDL_NUM_SCANCODES];
+#else
+extern volatile boolean    Keyboard[SDLK_LAST];
+#endif
 extern           boolean    MousePresent;
 extern  volatile boolean    Paused;
 extern  volatile char       LastASCII;

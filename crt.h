@@ -23,6 +23,13 @@
 #include "SDL/SDL.h"
 #endif
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+extern SDL_GLContext  gSDLContext;
+extern SDL_Palette   *gpSDLPalette;
+extern SDL_Renderer  *gpSDLRenderer;
+extern SDL_Window    *gpSDLWindow;
+#endif
+
 extern SDL_Color curpal[256];
 /*
  * CRT aspect ratio is 4:3, height will be infered.

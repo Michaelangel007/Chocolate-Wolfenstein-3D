@@ -1,4 +1,5 @@
 // ID_VL.C
+#include "compiler.h"
 
 #include <string.h>
 #include "wl_def.h"
@@ -45,6 +46,9 @@ SDL_Color curpal[256];
 
 
 #define CASSERT(x) extern int ASSERT_COMPILE[((x) != 0) * 2 - 1];
+
+// TODO:This is being defined multiple times
+//#undef RGB
 #define RGB(r, g, b) {(r)*255/63, (g)*255/63, (b)*255/63, 0}
 
 SDL_Color gamepal[]={
@@ -85,27 +89,52 @@ void    VL_Shutdown (void)
 void    VL_SetVGAPlaneMode (void)
 {
 #ifdef SPEAR
-    SDL_WM_SetCaption("Spear of Destiny", NULL);
+    //SDL_WM_SetCaption("Spear of Destiny", NULL);
+    const char *caption = "Spear of Destiny";
 #else
-    SDL_WM_SetCaption("Wolfenstein 3D", NULL);
+    //SDL_WM_SetCaption("Wolfenstein 3D", NULL);
+    const char *caption = "Wolfenstein 3D";
 #endif
+
+#if SDL_VERSION_ATLEAST(2,0,0)
+    // Handled in SDL_CreateWindow() below
+#else
+    SDL_WM_SetCaption(caption);
+#endif // SDL2
 
     if(screenBits == -1)
     {
+#if SDL_VERSION_ATLEAST(2,0,0)
+        SDL_RendererInfo tRendererInfo;
+        SDL_GetRenderDriverInfo(0, &tRendererInfo);
+#else
         const SDL_VideoInfo *vidInfo = SDL_GetVideoInfo();
         screenBits = vidInfo->vfmt->BitsPerPixel;
+#endif // SDL2
     }
 
     //Fab's CRT Hack
     //Adjust height so the screen is 4:3 aspect ratio
     screenHeight=screenWidth * 3.0/4.0;
     
+#if SDL_VERSION_ATLEAST(2,0,0)
+    int flags = 0
+        | (fullscreen ? SDL_WINDOW_FULLSCREEN : 0) | SDL_WINDOW_OPENGL;
+    gpSDLWindow = SDL_CreateWindow(
+        caption,
+        0,
+        0,
+        screenWidth,
+        screenHeight,
+        flags
+    );
+    gpSDLRenderer = SDL_CreateRenderer(gpSDLWindow, -1, 0);
+    gSDLContext = SDL_GL_CreateContext(gpSDLWindow);
+#else
     screen = SDL_SetVideoMode(screenWidth, screenHeight, screenBits,
           (usedoublebuffering ? SDL_HWSURFACE | SDL_DOUBLEBUF : 0)
         | (screenBits == 8 ? SDL_HWPALETTE : 0)
         | (fullscreen ? SDL_FULLSCREEN : 0) | SDL_OPENGL | SDL_OPENGLBLIT);
-    
-    
     if(!screen)
     {
         printf("Unable to set %ix%ix%i video mode: %s\n", screenWidth, screenHeight, screenBits, SDL_GetError());
@@ -113,9 +142,16 @@ void    VL_SetVGAPlaneMode (void)
     }
     if((screen->flags & SDL_DOUBLEBUF) != SDL_DOUBLEBUF)
         usedoublebuffering = false;
+#endif // SDL2
+
     SDL_ShowCursor(SDL_DISABLE);
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+#pragma message("TODO: VL_SetVGAPlaneMode SDL palette")
+    //SDL_SetPaletteColors( gpSDLPalette, gamepal, 0, 256);
+#else
     SDL_SetColors(screen, gamepal, 0, 256);
+#endif // SDL2
     memcpy(curpal, gamepal, sizeof(SDL_Color) * 256);
 
     //Fab's CRT Hack
@@ -132,7 +168,13 @@ void    VL_SetVGAPlaneMode (void)
         printf("Unable to create screen buffer surface: %s\n", SDL_GetError());
         exit(1);
     }
+#if SDL_VERSION_ATLEAST(2,0,0)
+    screen = screenBuffer;
+    gpSDLPalette = screen->format->palette;
+#pragma message("TODO: VL_SetVGAPlaneMode SDL palette")
+#else
     SDL_SetColors(screenBuffer, gamepal, 0, 256);
+#endif
 
     screenPitch = screen->pitch;
     bufferPitch = screenBuffer->pitch;
@@ -219,10 +261,20 @@ void VL_SetColor    (int color, int red, int green, int blue)
     curpal[color] = col;
 
     if(screenBits == 8)
+    {
+#if SDL_VERSION_ATLEAST(2,0,0)
+#pragma message("TODO: VL_SetColor SDL2")
+#else
         SDL_SetPalette(screen, SDL_PHYSPAL, &col, color, 1);
+#endif // SDL2
+    }
     else
     {
+#if SDL_VERSION_ATLEAST(2,0,0)
+#pragma message( "TODO: VL_SetColor SDL2" )
+#else
         SDL_SetPalette(curSurface, SDL_LOGPAL, &col, color, 1);
+#endif // SDL2
         SDL_BlitSurface(screenBuffer, NULL, screen, NULL);
         SDL_Flip(screen);
     }
@@ -261,10 +313,20 @@ void VL_SetPalette (SDL_Color *palette, bool forceupdate)
     memcpy(curpal, palette, sizeof(SDL_Color) * 256);
 
     if(screenBits == 8)
+    {
+#if SDL_VERSION_ATLEAST(2,0,0)
+#pragma message( "TODO: VL_SetPalette SDL2" )
+#else
         SDL_SetPalette(screen, SDL_PHYSPAL, palette, 0, 256);
+#endif // SDL2
+    }
     else
     {
+#if SDL_VERSION_ATLEAST(2,0,0)
+#pragma message( "TODO: VL_SetPalette SDL2" )
+#else
         SDL_SetPalette(curSurface, SDL_LOGPAL, palette, 0, 256);
+#endif // SDL2
         if(forceupdate)
         {
             SDL_BlitSurface(screenBuffer, NULL, screen, NULL);

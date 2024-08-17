@@ -1,7 +1,7 @@
 #pragma once
 
-// See:https://dev.to/yumetodo/list-of-mscver-and-mscfullver-8nd
-#if _MSC_VER >= 1800 // MSVC 13.0
+// See: https://dev.to/yumetodo/list-of-mscver-and-mscfullver-8nd
+#if _MSC_VER >= 1800 // MSVC 2013
     // Shutup MSVC about "archaic" C Run-Time Warnings
     //
     // Normally we would do ...
@@ -38,3 +38,35 @@
 //  #pragma warning(suppress : 4996)
 //  #pragma warning(disable : 4996)
 #endif // MSVC 13.0
+
+#if _MSC_VER >= 1920
+
+#define SDL_MAIN_HANDLED
+
+/*
+There are two conflicting declarations of Keyboard
+
+File: id_in.h
+Type: Dynamic array
+extern  volatile boolean    Keyboard[];;
+
+File: id_in.cpp
+Type: Static array
+volatile boolean    Keyboard[SDLK_LAST];         // SDL1.x
+volatile boolean    keyboard[SDL_NUM_SCANCODES]; // SDL 2.x
+
+We need to pull in SDL.h so we can get access to SDL_NUM_SCANCODES
+*/
+// Win32
+#ifdef _WIN32
+#include <WTypes.h>
+#include <gl\GL.h>
+#include "SDL.h"
+#elif __linux__
+#include <GL/gl.h>
+#include "SDL/SDL.h"
+#else
+#include <OpenGL/gl.h>
+#include "SDL/SDL.h"
+#endif
+#endif  // MSVC 2019

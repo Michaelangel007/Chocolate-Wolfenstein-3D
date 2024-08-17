@@ -1,5 +1,7 @@
-#include "wl_def.h"
+#include "compiler.h"
 
+#include "wl_def.h"
+#include "crt.h" // gpSDLRenderer
 
 pictabletype    *pictable;
 SDL_Surface     *latchpics[NUMLATCHPICS];
@@ -115,8 +117,12 @@ void VW_MeasurePropString (const char *string, word *width, word *height)
 
 void VH_UpdateScreen()
 {
+#if SDL_VERSION_ATLEAST(2,0,0)
+    SDL_RenderPresent( gpSDLRenderer );
+#else
     SDL_BlitSurface(screenBuffer, NULL, screen, NULL);
     SDL_Flip(screen);
+#endif
 }
 
 
@@ -231,14 +237,28 @@ void LoadLatchMem (void)
 //
 // tile 8s
 //
-    
-    surf = SDL_CreateRGBSurface(SDL_HWSURFACE, 8*8,
+#if SDL_VERSION_ATLEAST(2,0,0)
+        Uint32  flags = 0;
+#else
+        Uint32  flags = SDL_HWSURFACE;
+#endif // SDL2
+
+    surf = SDL_CreateRGBSurface(flags, 8*8,
         ((NUMTILE8 + 7) / 8) * 8, 8, 0, 0, 0, 0);
+
     if(surf == NULL)
     {
         Quit("Unable to create surface for tiles!");
     }
+
+#if SDL_VERSION_ATLEAST(2,0,0)
+#pragma message("TODO: LoadLatchMem palette SDL2")
+    //SDL_Palette *palette = surf->format->palette;
+    //SDL_SetSurfacePalette(surf, palette);
+    SDL_SetSurfacePalette(surf, gpSDLPalette);
+#else#else
     SDL_SetColors(surf, gamepal, 0, 256);
+#endif // SDL2
 
     latchpics[0] = surf;
     CA_CacheGrChunk (STARTTILE8);
@@ -261,12 +281,16 @@ void LoadLatchMem (void)
     {
         width = pictable[i-STARTPICS].width;
         height = pictable[i-STARTPICS].height;
-        surf = SDL_CreateRGBSurface(SDL_HWSURFACE, width, height, 8, 0, 0, 0, 0);
+        surf = SDL_CreateRGBSurface(flags, width, height, 8, 0, 0, 0, 0);
         if(surf == NULL)
         {
             Quit("Unable to create surface for picture!");
         }
+#if SDL_VERSION_ATLEAST(2,0,0)
+        SDL_SetSurfacePalette(surf, gpSDLPalette);
+#else
         SDL_SetColors(surf, gamepal, 0, 256);
+#endif
 
         latchpics[2+i-start] = surf;
         CA_CacheGrChunk (i);

@@ -335,7 +335,11 @@ static byte *ExtScanNames[] =   // Names corresponding to ExtScanCodes
                                         };*/
 
 #else
+#if SDL_VERSION_ATLEAST(2,0,0)
+static const char* const ScanNames[SDL_NUM_SCANCODES] =
+#else
 static const char* const ScanNames[SDLK_LAST] =
+#endif // SDL2
     {
         "?","?","?","?","?","?","?","?",                                //   0
         "BkSp","Tab","?","?","?","Return","?","?",                      //   8

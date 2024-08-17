@@ -674,7 +674,11 @@ US_LineInput(int x,int y,char *buf,const char *def,boolean escok,
                     cursormoved = true;
                     break;
 
+#if SDL_VERSION_ATLEAST(2,0,0)
+                case SDLK_KP_5: //0x4c:  // Keypad 5 // TODO: hmmm...
+#else
                 case SDLK_KP5: //0x4c:  // Keypad 5 // TODO: hmmm...
+#endif // SDL2
                 case sc_UpArrow:
                 case sc_DownArrow:
                 case sc_PgUp:
